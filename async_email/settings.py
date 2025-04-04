@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,6 +28,14 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# settings.py
+
+AUTH_USER_MODEL = 'auth.User'  # Если используешь стандартную модель
+ACCOUNT_EMAIL_REQUIRED = True  # Сделает email обязательным
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Позволяет логиниться по email и username
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Можно поменять на 'mandatory', если нужна верификация
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -53,18 +63,22 @@ ROOT_URLCONF = "async_email.urls"
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR],  # Указываем путь к корню проекта
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
+
+
+
 
 WSGI_APPLICATION = "async_email.wsgi.application"
 
@@ -120,3 +134,17 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Настройки Celery
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL брокера, Redis по умолчанию на порту 6379
+CELERY_ACCEPT_CONTENT = ['json']  # Типы контента, которые Celery будет принимать
+CELERY_TASK_SERIALIZER = 'json'  # Сериализатор задач
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Место для хранения результатов задач
+CELERY_TIMEZONE = 'UTC'  # Временная зона для задач Celery
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+DEFAULT_FROM_EMAIL = 'noreply@mysite.com'
+ROOT_URLCONF = 'async_email.urls' 
